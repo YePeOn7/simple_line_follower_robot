@@ -8,6 +8,11 @@ const int MOTOR_KANAN_IN2 = 5;
 const int MOTOR_KIRI_IN1 = 6;
 const int MOTOR_KIRI_IN2 = 7;
 
+#define MODE 0 // 0: Line Tracking Normal, 1: Telusur Kanan, 2: Telusur Kiri
+
+#define KECEPATAN 170
+#define KECEPATAN_BELOK 120
+
 // Threshold Sensor (Ambang Batas)
 #define THRESHOLD_SENSOR_KIRI  500
 #define THRESHOLD_SENSOR_KANAN 500
@@ -33,11 +38,11 @@ void setMotorKanan(int kecepatan) {
 void setMotorKiri(int kecepatan) {
   kecepatan = constrain(kecepatan, -255, 255);
   if (kecepatan >= 0) {
-    digitalWrite(MOTOR_KIRI_IN2, LOW);
-    analogWrite(MOTOR_KIRI_IN1, kecepatan);
-  } else {
     digitalWrite(MOTOR_KIRI_IN2, HIGH);
-    analogWrite(MOTOR_KIRI_IN1, 255 + kecepatan); // kecepatan bernilai negatif
+    analogWrite(MOTOR_KIRI_IN1, 255 - kecepatan);
+  } else {
+    digitalWrite(MOTOR_KIRI_IN2, LOW);
+    analogWrite(MOTOR_KIRI_IN1, -kecepatan); // -kecepatan bernilai positif
   }
 }
 
@@ -83,19 +88,36 @@ void setup() {
 }
 
 void loop() {
-  // Baca data sensor ADC & logika boolean
   bacaSensor();
+  // cetakSensor();
 
-  // Cetak status sensor ke Serial Monitor
-  cetakSensor();
+  int speedKiri = 0;
+  int speedKanan = 0;
 
-  // Logika Gerakan Motor:
-  // Motor maju jika sensor mendeteksi permukaan putih (true), sebaliknya mundur (-100)
-//   int speedKiri = logicSensorKiri ? 100 : -100;
-//   int speedKanan = logicSensorKanan ? 100 : -100;
+#if MODE == 0
+  // Mode 0: Dual-Sensor Line Tracking biasa
+  // Jika logic sensor SAMA -> Pakai KECEPATAN, jika BEDA -> Pakai KECEPATAN_BELOK
+  int kecepatan = (logicSensorKiri == logicSensorKanan) ? KECEPATAN : KECEPATAN_BELOK;
+  speedKiri  = logicSensorKiri  ? kecepatan : -kecepatan;
+  speedKanan = logicSensorKanan ? kecepatan : -kecepatan;
 
-  setMotorKiri(0);
-//   setMotorKanan(100);
+#elif MODE == 1
+  // Mode 1: Telusur Kanan
+  // Jika logic sensor BEDA -> Pakai KECEPATAN, jika SAMA -> Pakai KECEPATAN_BELOK
+  int kecepatan = (logicSensorKiri != logicSensorKanan) ? KECEPATAN : KECEPATAN_BELOK;
+  speedKiri  = (!logicSensorKiri) ? kecepatan : -kecepatan;
+  speedKanan = logicSensorKanan   ? kecepatan : -kecepatan;
+
+#elif MODE == 2
+  // Mode 2: Telusur Kiri (Kebalikan Mode 1)
+  // Jika logic sensor BEDA -> Pakai KECEPATAN, jika SAMA -> Pakai KECEPATAN_BELOK
+  int kecepatan = (logicSensorKiri != logicSensorKanan) ? KECEPATAN : KECEPATAN_BELOK;
+  speedKiri  = logicSensorKiri    ? kecepatan : -kecepatan;
+  speedKanan = (!logicSensorKanan) ? kecepatan : -kecepatan;
+#endif
+
+  setMotorKiri(speedKiri);
+  setMotorKanan(speedKanan);
 
 //   delay(100);
 }
