@@ -21,29 +21,23 @@ bool logicSensorKanan = false;
 
 void setMotorKanan(int kecepatan) {
   kecepatan = constrain(kecepatan, -255, 255);
-  if (kecepatan > 0) {
+  if (kecepatan >= 0) {
     digitalWrite(MOTOR_KANAN_IN1, LOW);
     analogWrite(MOTOR_KANAN_IN2, kecepatan);
-  } else if (kecepatan < 0) {
-    digitalWrite(MOTOR_KANAN_IN1, HIGH);
-    analogWrite(MOTOR_KANAN_IN2, 255 + kecepatan); // kecepatan bernilai negatif
   } else {
-    digitalWrite(MOTOR_KANAN_IN1, LOW);
-    digitalWrite(MOTOR_KANAN_IN2, LOW);
+    digitalWrite(MOTOR_KANAN_IN1, HIGH);
+    analogWrite(MOTOR_KANAN_IN2, 255 - abs(kecepatan));
   }
 }
 
 void setMotorKiri(int kecepatan) {
   kecepatan = constrain(kecepatan, -255, 255);
-  if (kecepatan > 0) {
+  if (kecepatan >= 0) {
     digitalWrite(MOTOR_KIRI_IN2, LOW);
     analogWrite(MOTOR_KIRI_IN1, kecepatan);
-  } else if (kecepatan < 0) {
-    digitalWrite(MOTOR_KIRI_IN2, HIGH);
-    analogWrite(MOTOR_KIRI_IN1, 255 + kecepatan); // kecepatan bernilai negatif
   } else {
-    digitalWrite(MOTOR_KIRI_IN1, LOW);
-    digitalWrite(MOTOR_KIRI_IN2, LOW);
+    digitalWrite(MOTOR_KIRI_IN2, HIGH);
+    analogWrite(MOTOR_KIRI_IN1, 255 - abs(kecepatan));
   }
 }
 
@@ -90,18 +84,18 @@ void setup() {
 
 void loop() {
   // Baca data sensor ADC & logika boolean
-//   bacaSensor();
+  bacaSensor();
 
   // Cetak status sensor ke Serial Monitor
-//   cetakSensor();
+  cetakSensor();
 
   // Logika Gerakan Motor:
   // Motor maju jika sensor mendeteksi permukaan putih (true), sebaliknya mundur (-100)
 //   int speedKiri = logicSensorKiri ? 100 : -100;
 //   int speedKanan = logicSensorKanan ? 100 : -100;
 
-//   setMotorKiri(speedKiri);
-//   setMotorKanan(speedKanan);
+  setMotorKiri(0);
+//   setMotorKanan(100);
 
 //   delay(100);
 }
