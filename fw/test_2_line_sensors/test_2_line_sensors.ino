@@ -14,8 +14,6 @@ void loop() {
   dtostrf(voltageA1, 4, 2, voltA1Str);
 
   char buffer[80];
-  snprintf(buffer, sizeof(buffer), "L (A0): %3d (%s V)\tR (A1): %3d (%s V)", valueA0, voltA0Str, valueA1, voltA1Str);
+  snprintf(buffer, sizeof(buffer), "L (A0): %3d (%s V) -- R (A1): %3d (%s V)", valueA0, voltA0Str, valueA1, voltA1Str);
   Serial.println(buffer);
-
-  delay(100);
 }

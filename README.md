@@ -6,3 +6,4 @@ Firmware and project files for the Simple Line Follower Robot series.
 - `fw/`: Firmware sketches
   - `test_single_light_sensor/`: Single photodiode sensor reading test sketch
   - `test_2_line_sensors/`: Dual line sensor reading test sketch (A0 and A1)
+  - `v1/`: Base firmware v1 with 4-sequence motor direction testing and dual sensor reading
