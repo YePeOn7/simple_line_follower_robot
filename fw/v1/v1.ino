@@ -26,7 +26,7 @@ void setMotorKanan(int kecepatan) {
     analogWrite(MOTOR_KANAN_IN2, kecepatan);
   } else {
     digitalWrite(MOTOR_KANAN_IN1, HIGH);
-    analogWrite(MOTOR_KANAN_IN2, 255 - abs(kecepatan));
+    analogWrite(MOTOR_KANAN_IN2, 255 + kecepatan); // kecepatan bernilai negatif
   }
 }
 
@@ -37,7 +37,7 @@ void setMotorKiri(int kecepatan) {
     analogWrite(MOTOR_KIRI_IN1, kecepatan);
   } else {
     digitalWrite(MOTOR_KIRI_IN2, HIGH);
-    analogWrite(MOTOR_KIRI_IN1, 255 - abs(kecepatan));
+    analogWrite(MOTOR_KIRI_IN1, 255 + kecepatan); // kecepatan bernilai negatif
   }
 }
 
