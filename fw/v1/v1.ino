@@ -28,20 +28,16 @@ void setup() {
   stopMotor();
 }
 
-void bacaDanCetakSensor(const char* namaAksi) {
-  int valueA0 = analogRead(SENSOR_KIRI);
-  int valueA1 = analogRead(SENSOR_KANAN);
+// Fungsi khusus membaca nilai ADC sensor (Kiri & Kanan)
+void bacaSensor(int &adcKiri, int &adcKanan) {
+  adcKiri = analogRead(SENSOR_KIRI);
+  adcKanan = analogRead(SENSOR_KANAN);
+}
 
-  float voltageA0 = valueA0 * (5.0 / 1023.0);
-  float voltageA1 = valueA1 * (5.0 / 1023.0);
-
-  char voltA0Str[6], voltA1Str[6];
-  dtostrf(voltageA0, 4, 2, voltA0Str);
-  dtostrf(voltageA1, 4, 2, voltA1Str);
-
-  char buffer[100];
-  snprintf(buffer, sizeof(buffer), "[%-12s] L (A0): %3d (%s V) -- R (A1): %3d (%s V)",
-           namaAksi, valueA0, voltA0Str, valueA1, voltA1Str);
+// Fungsi khusus mencetak nilai ADC ke Serial Monitor
+void cetakSensor(int adcKiri, int adcKanan) {
+  char buffer[60];
+  snprintf(buffer, sizeof(buffer), "L (A0): %3d -- R (A1): %3d", adcKiri, adcKanan);
   Serial.println(buffer);
 }
 
@@ -85,39 +81,5 @@ void robot_gerak(int lin, int rot) {
 }
 
 void loop() {
-  // === Sekuens 1: Maju (lin: 200, rot: 0) ===
-  robot_gerak(200, 0);
-  for (int i = 0; i < 10; i++) {
-    bacaDanCetakSensor("Maju");
-    delay(100);
-  }
-  robot_gerak(0, 0);
-  delay(500);
 
-  // === Sekuens 2: Mundur (lin: -200, rot: 0) ===
-  robot_gerak(-200, 0);
-  for (int i = 0; i < 10; i++) {
-    bacaDanCetakSensor("Mundur");
-    delay(100);
-  }
-  robot_gerak(0, 0);
-  delay(500);
-
-  // === Sekuens 3: Putar Kanan (lin: 0, rot: 200) ===
-  robot_gerak(0, 200);
-  for (int i = 0; i < 10; i++) {
-    bacaDanCetakSensor("Putar Kanan");
-    delay(100);
-  }
-  robot_gerak(0, 0);
-  delay(500);
-
-  // === Sekuens 4: Putar Kiri (lin: 0, rot: -200) ===
-  robot_gerak(0, -200);
-  for (int i = 0; i < 10; i++) {
-    bacaDanCetakSensor("Putar Kiri");
-    delay(100);
-  }
-  robot_gerak(0, 0);
-  delay(1000);
 }
