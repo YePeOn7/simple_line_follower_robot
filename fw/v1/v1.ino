@@ -90,18 +90,18 @@ void setup() {
 
 void loop() {
   // Baca data sensor ADC & logika boolean
-  bacaSensor();
+//   bacaSensor();
 
   // Cetak status sensor ke Serial Monitor
-  cetakSensor();
+//   cetakSensor();
 
   // Logika Gerakan Motor:
-  // Motor maju jika sensor mendeteksi permukaan putih (true), sebaliknya berhenti (0)
-  int speedKiri = logicSensorKiri ? 200 : 0;
-  int speedKanan = logicSensorKanan ? 200 : 0;
+  // Motor maju jika sensor mendeteksi permukaan putih (true), sebaliknya mundur (-100)
+//   int speedKiri = logicSensorKiri ? 100 : -100;
+//   int speedKanan = logicSensorKanan ? 100 : -100;
 
-  setMotorKiri(speedKiri);
-  setMotorKanan(speedKanan);
+//   setMotorKiri(speedKiri);
+//   setMotorKanan(speedKanan);
 
-  delay(100);
+//   delay(100);
 }
