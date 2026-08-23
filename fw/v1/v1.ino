@@ -8,38 +8,16 @@ const int MOTOR_KANAN_IN2 = 5;
 const int MOTOR_KIRI_IN1 = 6;
 const int MOTOR_KIRI_IN2 = 7;
 
-void stopMotor() {
-  digitalWrite(MOTOR_KANAN_IN1, LOW);
-  digitalWrite(MOTOR_KANAN_IN2, LOW);
-  digitalWrite(MOTOR_KIRI_IN1, LOW);
-  digitalWrite(MOTOR_KIRI_IN2, LOW);
-}
+// Threshold Sensor (Ambang Batas)
+#define THRESHOLD_SENSOR_KIRI  500
+#define THRESHOLD_SENSOR_KANAN 500
 
-void setup() {
-  Serial.begin(115200);
+// Variable Global Sensor (ADC & Logic Boolean)
+int adcSensorKiri = 0;
+int adcSensorKanan = 0;
 
-  // Inisialisasi pin motor sebagai OUTPUT
-  pinMode(MOTOR_KANAN_IN1, OUTPUT);
-  pinMode(MOTOR_KANAN_IN2, OUTPUT);
-  pinMode(MOTOR_KIRI_IN1, OUTPUT);
-  pinMode(MOTOR_KIRI_IN2, OUTPUT);
-
-  // Pastikan motor berhenti di awal
-  stopMotor();
-}
-
-// Fungsi khusus membaca nilai ADC sensor (Kiri & Kanan)
-void bacaSensor(int &adcKiri, int &adcKanan) {
-  adcKiri = analogRead(SENSOR_KIRI);
-  adcKanan = analogRead(SENSOR_KANAN);
-}
-
-// Fungsi khusus mencetak nilai ADC ke Serial Monitor
-void cetakSensor(int adcKiri, int adcKanan) {
-  char buffer[60];
-  snprintf(buffer, sizeof(buffer), "L (A0): %3d -- R (A1): %3d", adcKiri, adcKanan);
-  Serial.println(buffer);
-}
+bool logicSensorKiri = false;
+bool logicSensorKanan = false;
 
 void setMotorKanan(int kecepatan) {
   kecepatan = constrain(kecepatan, -255, 255);
@@ -78,6 +56,36 @@ void robot_gerak(int lin, int rot) {
 
   setMotorKiri(kecepatanKiri);
   setMotorKanan(kecepatanKanan);
+}
+
+// Membaca nilai ADC dan mengonversi ke logika boolean berdasarkan threshold
+void bacaSensor() {
+  adcSensorKiri = analogRead(SENSOR_KIRI);
+  adcSensorKanan = analogRead(SENSOR_KANAN);
+
+  logicSensorKiri = (adcSensorKiri > THRESHOLD_SENSOR_KIRI);
+  logicSensorKanan = (adcSensorKanan > THRESHOLD_SENSOR_KANAN);
+}
+
+// Mencetak data sensor (ADC & Logic) ke Serial Monitor
+void cetakSensor() {
+  char buffer[80];
+  snprintf(buffer, sizeof(buffer), "L (A0): %3d [%d] -- R (A1): %3d [%d]",
+           adcSensorKiri, logicSensorKiri, adcSensorKanan, logicSensorKanan);
+  Serial.println(buffer);
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  // Inisialisasi pin motor sebagai OUTPUT
+  pinMode(MOTOR_KANAN_IN1, OUTPUT);
+  pinMode(MOTOR_KANAN_IN2, OUTPUT);
+  pinMode(MOTOR_KIRI_IN1, OUTPUT);
+  pinMode(MOTOR_KIRI_IN2, OUTPUT);
+
+  // Hentikan motor di awal dengan robot_gerak(0, 0)
+  robot_gerak(0, 0);
 }
 
 void loop() {
