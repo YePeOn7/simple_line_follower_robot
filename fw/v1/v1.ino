@@ -45,60 +45,79 @@ void readAndPrintSensors(const char* actionName) {
   Serial.println(buffer);
 }
 
-void rightMotorForward() {
-  digitalWrite(MOTOR_RIGHT_IN1, HIGH);
-  digitalWrite(MOTOR_RIGHT_IN2, LOW);
+void setMotorRight(int speed) {
+  speed = constrain(speed, -255, 255);
+  if (speed > 0) {
+    digitalWrite(MOTOR_RIGHT_IN1, LOW);
+    analogWrite(MOTOR_RIGHT_IN2, speed);
+  } else if (speed < 0) {
+    digitalWrite(MOTOR_RIGHT_IN1, HIGH);
+    analogWrite(MOTOR_RIGHT_IN2, 255 + speed); // speed is negative
+  } else {
+    digitalWrite(MOTOR_RIGHT_IN1, LOW);
+    digitalWrite(MOTOR_RIGHT_IN2, LOW);
+  }
 }
 
-void rightMotorBackward() {
-  digitalWrite(MOTOR_RIGHT_IN1, LOW);
-  digitalWrite(MOTOR_RIGHT_IN2, HIGH);
+void setMotorLeft(int speed) {
+  speed = constrain(speed, -255, 255);
+  if (speed > 0) {
+    digitalWrite(MOTOR_LEFT_IN2, LOW);
+    analogWrite(MOTOR_LEFT_IN1, speed);
+  } else if (speed < 0) {
+    digitalWrite(MOTOR_LEFT_IN2, HIGH);
+    analogWrite(MOTOR_LEFT_IN1, 255 + speed); // speed is negative
+  } else {
+    digitalWrite(MOTOR_LEFT_IN1, LOW);
+    digitalWrite(MOTOR_LEFT_IN2, LOW);
+  }
 }
 
-void leftMotorForward() {
-  digitalWrite(MOTOR_LEFT_IN1, HIGH);
-  digitalWrite(MOTOR_LEFT_IN2, LOW);
-}
+// Konversi linier (lin) & rotasi (rot) ke gerakan roda diferensial
+// lin: -255 (mundur penuh) s/d 255 (maju penuh)
+// rot: -255 (putar kiri) s/d 255 (putar kanan)
+void robot_gerak(int lin, int rot) {
+  int speedLeft = lin + rot;
+  int speedRight = lin - rot;
 
-void leftMotorBackward() {
-  digitalWrite(MOTOR_LEFT_IN1, LOW);
-  digitalWrite(MOTOR_LEFT_IN2, HIGH);
+  setMotorLeft(speedLeft);
+  setMotorRight(speedRight);
 }
 
 void loop() {
-  // === Sekuens 1: Motor Kanan Maju ===
-  rightMotorForward();
+  // === Sekuens 1: Maju (lin: 200, rot: 0) ===
+  robot_gerak(200, 0);
   for (int i = 0; i < 10; i++) {
-    readAndPrintSensors("Kanan Maju");
+    readAndPrintSensors("Maju");
     delay(100);
   }
-  stopMotors();
+  robot_gerak(0, 0);
   delay(500);
 
-  // === Sekuens 2: Motor Kanan Mundur ===
-  rightMotorBackward();
+  // === Sekuens 2: Mundur (lin: -200, rot: 0) ===
+  robot_gerak(-200, 0);
   for (int i = 0; i < 10; i++) {
-    readAndPrintSensors("Kanan Mundur");
+    readAndPrintSensors("Mundur");
     delay(100);
   }
-  stopMotors();
+  robot_gerak(0, 0);
   delay(500);
 
-  // === Sekuens 3: Motor Kiri Maju ===
-  leftMotorForward();
+  // === Sekuens 3: Putar Kanan (lin: 0, rot: 200) ===
+  robot_gerak(0, 200);
   for (int i = 0; i < 10; i++) {
-    readAndPrintSensors("Kiri Maju");
+    readAndPrintSensors("Putar Kanan");
     delay(100);
   }
-  stopMotors();
+  robot_gerak(0, 0);
   delay(500);
 
-  // === Sekuens 4: Motor Kiri Mundur ===
-  leftMotorBackward();
+  // === Sekuens 4: Putar Kiri (lin: 0, rot: -200) ===
+  robot_gerak(0, -200);
   for (int i = 0; i < 10; i++) {
-    readAndPrintSensors("Kiri Mundur");
+    readAndPrintSensors("Putar Kiri");
     delay(100);
   }
-  stopMotors();
+  robot_gerak(0, 0);
   delay(1000);
 }
