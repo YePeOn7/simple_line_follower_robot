@@ -50,7 +50,7 @@ void setMotorKiri(int kecepatan) {
 // Konversi linier (lin) & rotasi (rot) ke gerakan roda diferensial
 // lin: -255 (mundur penuh) s/d 255 (maju penuh)
 // rot: -255 (putar kiri) s/d 255 (putar kanan)
-void robot_gerak(int lin, int rot) {
+void robotGerak(int lin, int rot) {
   int kecepatanKiri = lin + rot;
   int kecepatanKanan = lin - rot;
 
@@ -84,10 +84,24 @@ void setup() {
   pinMode(MOTOR_KIRI_IN1, OUTPUT);
   pinMode(MOTOR_KIRI_IN2, OUTPUT);
 
-  // Hentikan motor di awal dengan robot_gerak(0, 0)
-  robot_gerak(0, 0);
+  // Hentikan motor di awal dengan robotGerak(0, 0)
+  robotGerak(0, 0);
 }
 
 void loop() {
+  // Baca data sensor ADC & logika boolean
+  bacaSensor();
 
+  // Cetak status sensor ke Serial Monitor
+  cetakSensor();
+
+  // Logika Gerakan Motor:
+  // Motor maju jika sensor mendeteksi permukaan putih (true), sebaliknya berhenti (0)
+  int speedKiri = logicSensorKiri ? 200 : 0;
+  int speedKanan = logicSensorKanan ? 200 : 0;
+
+  setMotorKiri(speedKiri);
+  setMotorKanan(speedKanan);
+
+  delay(100);
 }
