@@ -3,7 +3,7 @@ void setup() {
 }
 
 void loop() {
-  int value = analogRead(A0);
+  int value = analogRead(A0); //ADC Read
   float voltage = value * (5.0 / 1023.0);
 
   char voltStr[6];
