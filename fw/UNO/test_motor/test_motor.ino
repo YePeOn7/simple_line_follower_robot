@@ -1,45 +1,59 @@
 #include "Arduino.h"
 
-#define PIN_MOTOR_L 5
-#define PIN_MOTOR_R 6
+#define PIN_A 4
+#define PIN_B 5
 
-int speedL = 0;
-int speedR = 0;
+int motorDir = 0;
 
-void applySpeeds(int l, int r) {
-  speedL = constrain(l, 0, 255);
-  speedR = constrain(r, 0, 255);
+void readMotorDirInfo() {
+  if (Serial.available() <= 0) return;
 
-  analogWrite(PIN_MOTOR_L, speedL);
-  analogWrite(PIN_MOTOR_R, speedR);
+  String input = Serial.readStringUntil('\n');
+  input.trim();
+  if (input.length() == 0) return;
 
-  Serial.print("Set -> Motor L: ");
-  Serial.print(speedL);
-  Serial.print(" | Motor R: ");
-  Serial.println(speedR);
-}
+  int val = input.toInt();
+  if (val == -1 || val == 0 || val == 1) {
+    if (val == 0 && input != "0") return;
 
-void setup() {
-  Serial.begin(115200);
-  Serial.setTimeout(100); // 100ms timeout for fast parsing response
-  Serial.println("--- Motor Control Serial Interface ---");
-  Serial.println("Format: <speedL>,<speedR> (e.g. 100,100)");
-  applySpeeds(0, 0);
-}
-
-void loop() {
-  if (Serial.available() > 0) {
-    int l = Serial.parseInt();
-    int r = Serial.parseInt();
-
-    // Consume any leftover newline/carriage return characters
-    while (Serial.available() > 0 && (Serial.peek() == '\n' || Serial.peek() == '\r')) {
-      Serial.read();
+    motorDir = val;
+    Serial.print("Get Command: ");
+    Serial.print(motorDir);
+    if (motorDir == -1) {
+      Serial.println(" (CCW)");
+    } else if (motorDir == 1) {
+      Serial.println(" (CW)");
+    } else {
+      Serial.println(" (STOP)");
     }
-
-    applySpeeds(l, r);
   }
 }
 
+// Responsible for digital logic motor control & setting hardware pins (without PWM)
+void updateMotor(int dir) {
+  if (dir == 1) {
+    digitalWrite(PIN_A, HIGH);  // Clockwise (CW)
+    digitalWrite(PIN_B, LOW);
+  } else if (dir == -1) {
+    digitalWrite(PIN_A, LOW);   // Counter-Clockwise (CCW)
+    digitalWrite(PIN_B, HIGH);
+  } else {
+    digitalWrite(PIN_A, LOW);   // Stop
+    digitalWrite(PIN_B, LOW);
+  }
+}
 
+void setup() {
+  pinMode(PIN_A, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
 
+  Serial.begin(115200);
+  Serial.println("--- Motor Test ---");
+
+  updateMotor(motorDir);
+}
+
+void loop() {
+  readMotorDirInfo(); // baca data serial
+  updateMotor(motorDir);
+}
