@@ -12,7 +12,6 @@
 int rawSpeedLeft = 0;
 int rawSpeedRight = 0;
 
-// Reads serial input and extracts left and right speed parameters (e.g. "100,-150" or "200, 200")
 void readMotorDirInfo() {
   if (Serial.available() <= 0) return;
 
@@ -27,8 +26,8 @@ void readMotorDirInfo() {
     leftStr.trim();
     rightStr.trim();
 
-    rawSpeedLeft = constrain(leftStr.toInt(), -255, 255);
-    rawSpeedRight = constrain(rightStr.toInt(), -255, 255);
+    rawSpeedLeft = -constrain(leftStr.toInt(), -255, 255);
+    rawSpeedRight = -constrain(rightStr.toInt(), -255, 255);
 
     Serial.print("Get Speed -> Left: ");
     Serial.print(rawSpeedLeft);
@@ -36,31 +35,31 @@ void readMotorDirInfo() {
     Serial.println(rawSpeedRight);
   } else {
     int val = constrain(input.toInt(), -255, 255);
-    rawSpeedLeft = val;
-    rawSpeedRight = val;
+    rawSpeedLeft = -val;
+    rawSpeedRight = -val;
     Serial.print("Get Speed -> Both: ");
     Serial.println(val);
   }
 }
 
-// Responsible for Right Motor PWM and DIR control logic
-void updateRightMotor(int speed) {
+
+void setRightMotor(int speed) {
   if (speed >= 0) {
-    digitalWrite(PIN_RIGHT_DIR, LOW);  // Clockwise (CW)
+    digitalWrite(PIN_RIGHT_DIR, LOW); 
     analogWrite(PIN_RIGHT_PWM, speed);
   } else {
-    digitalWrite(PIN_RIGHT_DIR, HIGH); // Counter-Clockwise (CCW - inverted PWM)
+    digitalWrite(PIN_RIGHT_DIR, HIGH); 
     analogWrite(PIN_RIGHT_PWM, 255 + speed);
   }
 }
 
-// Responsible for Left Motor PWM and DIR control logic
-void updateLeftMotor(int speed) {
+
+void setLeftMotor(int speed) {
   if (speed >= 0) {
-    digitalWrite(PIN_LEFT_DIR, LOW);  // Clockwise (CW)
+    digitalWrite(PIN_LEFT_DIR, LOW);
     analogWrite(PIN_LEFT_PWM, speed);
   } else {
-    digitalWrite(PIN_LEFT_DIR, HIGH); // Counter-Clockwise (CCW - inverted PWM)
+    digitalWrite(PIN_LEFT_DIR, HIGH);
     analogWrite(PIN_LEFT_PWM, 255 + speed);
   }
 }
@@ -74,13 +73,13 @@ void setup() {
   Serial.begin(115200);
   Serial.println("--- Dual Motor PWM Control Test ---");
 
-  updateLeftMotor(0);
-  updateRightMotor(0);
+  setLeftMotor(0);
+  setRightMotor(0);
 }
 
 void loop() {
   readMotorDirInfo();
-  updateLeftMotor(rawSpeedLeft);
-  updateRightMotor(rawSpeedRight);
+  setLeftMotor(rawSpeedLeft);
+  setRightMotor(rawSpeedRight);
 }
 
